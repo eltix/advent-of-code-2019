@@ -12,9 +12,6 @@ module Lib
 
 import BasicPrelude
 import qualified Data.Text as T
--- import Data.Graph
--- import Data.Map hiding (filter)
--- import qualified Data.Set as Set
 
 fuelRequired ::
   Int  -- ^ the module mass
