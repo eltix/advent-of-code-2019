@@ -1,0 +1,49 @@
+name:                day03
+version:             0.1.0.0
+github:              https://github.com/eltix/advent-of-code-2019
+license:             BSD3
+author:              "Author name here"
+maintainer:          "eliott.tixier@gmail.com"
+copyright:           "2019 Eliott Tixier"
+
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/eltix/advent-of-code-2019#README.md>
+
+dependencies:
+- base >= 4.7 && < 5
+- basic-prelude
+- lens
+- text
+- containers
+
+
+library:
+  source-dirs: src
+
+executables:
+  day03-1:
+    main:                Main.hs
+    source-dirs:         app/Part1
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - day03
+
+  day03-2:
+    main:                Main.hs
+    source-dirs:         app/Part2
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - day03
