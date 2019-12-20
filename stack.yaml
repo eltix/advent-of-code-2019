@@ -29,6 +29,8 @@ resolver: lts-14.16
 #   - auto-update
 #   - wai
 packages:
+- preprocessing
+
 - day01
 - day02
 - day03

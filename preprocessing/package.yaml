@@ -1,4 +1,4 @@
-name:                day02
+name:                preprocessing
 version:             0.1.0.0
 github:              https://github.com/eltix/advent-of-code-2019
 license:             BSD3
@@ -19,32 +19,7 @@ description:         Please see the README on GitHub at <https://github.com/elti
 dependencies:
 - base >= 4.7 && < 5
 - basic-prelude
-- lens
 - text
-# internal deps
-- preprocessing
-
 
 library:
   source-dirs: src
-
-executables:
-  day02-1:
-    main:                Main.hs
-    source-dirs:         app/Part1
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - day02
-
-  day02-2:
-    main:                Main.hs
-    source-dirs:         app/Part2
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - day02

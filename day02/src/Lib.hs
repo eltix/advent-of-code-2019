@@ -10,6 +10,8 @@ module Lib
   , findNounAndVerb
   ) where
 
+import Preprocessing (readProgram)
+
 import BasicPrelude
 import qualified Data.Text as T
 import Control.Lens
@@ -53,7 +55,7 @@ findNounAndVerb program target = fmap fst . find ((== target) . snd) $ zip candi
 
 part1 :: IO ()
 part1 = do
-  program :: [Int] <- readProgram
+  program :: [Int] <- readProgram'
   let
     program'   = program & ix 1 .~ 12 & ix 2 .~ 2
     finalState = runProgram program'
@@ -61,7 +63,7 @@ part1 = do
 
 part2 :: IO ()
 part2 = do
-  program :: [Int] <- readProgram
+  program :: [Int] <- readProgram'
   let
     target                 = 19690720
     mbNoundAndVerb         = findNounAndVerb program target
@@ -69,5 +71,5 @@ part2 = do
   print mbNoundAndVerb
   putStrLn $ "100 * noun + verb = " ++ tshow (transform <$> mbNoundAndVerb)
 
-readProgram :: IO [Int]
-readProgram = fmap read . T.splitOn "," . head . T.lines <$> readFile "day02/part1.csv"
+readProgram' :: IO [Int]
+readProgram' = readProgram "day02/part1.csv"
