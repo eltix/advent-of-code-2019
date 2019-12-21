@@ -1,4 +1,4 @@
-name:                day04
+name:                day05
 version:             0.1.0.0
 github:              https://github.com/eltix/advent-of-code-2019
 license:             BSD3
@@ -30,7 +30,7 @@ library:
   source-dirs: src
 
 executables:
-  day04-1:
+  day05-1:
     main:                Main.hs
     source-dirs:         app/Part1
     ghc-options:
@@ -38,9 +38,9 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - day04
+    - day05
 
-  day04-2:
+  day05-2:
     main:                Main.hs
     source-dirs:         app/Part2
     ghc-options:
@@ -48,4 +48,4 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - day04
+    - day05

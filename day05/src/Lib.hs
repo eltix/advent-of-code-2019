@@ -142,4 +142,4 @@ testPrograms = [equals8P, lessThan8P, equals8I, lessThan8I]
     lessThan8I = [3,3,1107,-1,8,3,4,3,99]
 
 readInput :: IO Program
-readInput = readProgram "day04/example2.csv"
+readInput = readProgram "day05/example2.csv"
