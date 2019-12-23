@@ -15,11 +15,13 @@ module IntCode
 import BasicPrelude
 import Control.Lens
 
+import Debug.Trace
+
 type Program = [Int]
 
 data OpCode =
   Add | Multiply | Input | Output | JumpIfTrue | JumpIfFalse
-  | LessThan | Equals | Halt
+  | LessThan | Equals | AdjustBase | Halt
     deriving Show
 
 fromIntToOpCode :: Int -> OpCode
@@ -32,6 +34,7 @@ fromIntToOpCode = \case
   6  -> JumpIfFalse
   7  -> LessThan
   8  -> Equals
+  9  -> AdjustBase
   99 -> Halt
   n  -> error $ "Unknown opcode: " ++ show n
 
@@ -45,15 +48,17 @@ numberOfParams = \case
   JumpIfFalse -> 2
   LessThan    -> 3
   Equals      -> 3
+  AdjustBase  -> 1
   Halt        -> 0
 
-data Mode = Position | Immediate
+data Mode = Position | Immediate | Relative
   deriving Show
 
 fromIntToMode :: Int -> Mode
 fromIntToMode = \case
   0 -> Position
   1 -> Immediate
+  2 -> Relative
   m -> error $ "Unknown parameter mode: " ++ show m
 
 parseFirstValue :: Int -> (OpCode, [Mode])
@@ -76,12 +81,23 @@ data ProgramContext =
   { program :: Program
   , pointer :: Int
   , state   :: State
+  , base    :: Int
   , inputs  :: [Int]
   , outputs :: [Int]
+  , memory  :: [Int]
   } deriving Show
 
-freshProgramContext :: Program -> Int -> ProgramContext
-freshProgramContext program input = ProgramContext program 0 Running [input] []
+freshProgramContext :: Program -> Maybe Int -> Int -> ProgramContext
+freshProgramContext program mbMemSize input =
+  ProgramContext
+  { program = program
+  , pointer = 0
+  , state   = Running
+  , base    = 0
+  , inputs  = [input]
+  , outputs = []
+  , memory = case mbMemSize of; Nothing -> program; Just m -> take m $ program ++ repeat 0
+  }
 
 resetProgramContext :: ProgramContext -> ProgramContext
 resetProgramContext p = p{state = Running, outputs = []}
@@ -102,23 +118,28 @@ executeInstruction p@ProgramContext{..} opcode ps = programContext'
   where
     p' = p{pointer = pointer + numberOfParams opcode + 1}
     value (param, mode) = case mode of
-      Position  -> program !! param
+      Position  -> memory !! param
       Immediate -> param
+      Relative  -> memory !! (param + base)
+    address (i, mode) = case mode of
+      Relative  -> i + base
+      _         -> i
 
+    -- programContext' = trace "base= " $ traceShow base $ trace "pointer= " $ traceShow pointer $ trace "opcode= " $ traceShow opcode $ traceShow ps $ case opcode of
     programContext' = case opcode of
-      Add      -> p'{program = program & ix (fst $ ps !! 2) .~ value (ps !! 0) + value (ps !! 1)}
-      Multiply -> p'{program = program & ix (fst $ ps !! 2) .~ value (ps !! 0) * value (ps !! 1)}
+      Add      -> p'{memory = memory & ix (address $ ps !! 2) .~ value (ps !! 0) + value (ps !! 1)}
+      Multiply -> p'{memory = memory & ix (address $ ps !! 2) .~ value (ps !! 0) * value (ps !! 1)}
       Input    -> case inputs of
         [] -> p {state = WaitingForInput}
-        _  -> p'{program = program & ix (fst $ ps !! 0) .~ head inputs, inputs = tail inputs}
-      Output   -> p'{outputs = outputs ++ [value $ ps !! 0]}
+        _  -> p'{memory = memory & ix (address $ ps !! 0) .~ head inputs, inputs = tail inputs}
+      Output      -> p'{outputs = outputs ++ [value $ ps !! 0]}
       JumpIfTrue  -> if value (ps !! 0) /= 0 then p{pointer = value (ps !! 1)} else p'
       JumpIfFalse -> if value (ps !! 0) == 0 then p{pointer = value (ps !! 1)} else p'
       LessThan    -> if value (ps !! 0) < value (ps !! 1)
-                      then p'{program = program & ix (fst $ ps !! 2) .~ 1}
-                      else p'{program = program & ix (fst $ ps !! 2) .~ 0}
+                      then p'{memory = memory & ix (address $ ps !! 2) .~ 1}
+                      else p'{memory = memory & ix (address $ ps !! 2) .~ 0}
       Equals      -> if value (ps !! 0) == value (ps !! 1)
-                      then p'{program = program & ix (fst $ ps !! 2) .~ 1}
-                      else p'{program = program & ix (fst $ ps !! 2) .~ 0}
-
-      Halt     -> p {state = Halted} -- Halt returns the program unchanged
+                      then p'{memory = memory & ix (address $ ps !! 2) .~ 1}
+                      else p'{memory = memory & ix (address $ ps !! 2) .~ 0}
+      AdjustBase  -> p'{base = base + value (ps !! 0)}
+      Halt        -> p {state = Halted}
