@@ -17,13 +17,12 @@ copyright:           "2019 Eliott Tixier"
 description:         Please see the README on GitHub at <https://github.com/eltix/advent-of-code-2019#README.md>
 
 dependencies:
-# internal deps 
+# internal deps
+- intcode
 - preprocessing
 # external deps
 - base >= 4.7 && < 5
 - basic-prelude
-- lens
-- text
 
 
 library:

@@ -23,7 +23,7 @@ chunksOf n l = (take n l) : (chunksOf n (drop n l))
 decodeImage :: (Int, Int) -> [[Int]] -> [[Int]]
 decodeImage (width, height) layers = renderImage width pixels
   where
-    n           = length $ head $ layers
+    n           = width*height
     pixelLayers = [[l !! i | l <- layers] | i <- [0..(n-1)]]
     pixels      = head . dropWhile (==2) <$> pixelLayers
 
@@ -39,7 +39,6 @@ printRow pixels = do
       0 -> " "
       1 -> "*"
       _ -> "?"
-
 
 part1 :: IO ()
 part1 = do
@@ -61,9 +60,7 @@ part2 = do
     layerSize = width*height
     layers = chunksOf layerSize image
     image' = decodeImage (width, height) layers
-  print $ length image'
   forM_ image' printRow
-
 
 loadInput :: IO [Int]
 loadInput = do
