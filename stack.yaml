@@ -36,6 +36,7 @@ packages:
 - day03
 - day05
 - day06
+- day08
 # Dependency packages to be pulled from upstream that are not in the resolver.
 # These entries can reference officially published versions as well as
 # forks / in-progress versions pinned to a git hash. For example:
