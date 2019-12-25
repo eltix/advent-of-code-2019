@@ -18,12 +18,15 @@ def never_decreases(digits):
     return reduce(fold_fun, digits, (True, -1))[0]
 
 
-a = 125730
-b = 579381
-count = 0
-for n in range (a, b):
-    digits = to_digits(n)
-    if never_decreases(digits) and freaking_elf_forgot_a_detail(digits):
-        count +=1
-        print(digits)
-print(f"count={count}")
+x = int(input("Input?"))
+y = to_digits(x)
+print(y)
+
+# a = 125730
+# b = 579381
+# count = 0
+# for n in range (a, b):
+#     digits = to_digits(n)
+#     if never_decreases(digits) and freaking_elf_forgot_a_detail(digits):
+#         count +=1
+# print(f"count={count}")
