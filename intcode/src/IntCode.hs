@@ -8,14 +8,14 @@
 
 module IntCode
   ( runProgram
-  , ProgramContext(..), Program
+  , ProgramContext(..), Program, State(..)
   , freshProgramContext, resetProgramContext
   ) where
 
 import BasicPrelude
 import Control.Lens
 
-import Debug.Trace
+-- import Debug.Trace
 
 type Program = [Int]
 
@@ -109,9 +109,9 @@ runProgram p@ProgramContext{state} = case state of
 
 updateProgram p@ProgramContext{..} = executeInstruction p opcode $ zip params modes
   where
-    (opcode, modes) = parseFirstValue $ program !! pointer
+    (opcode, modes) = parseFirstValue $ memory !! pointer
     numParams       = numberOfParams opcode
-    params          = [program !! (pointer + i) | i <- [1..numParams]]
+    params          = [memory !! (pointer + i) | i <- [1..numParams]]
 
 executeInstruction :: ProgramContext -> OpCode -> [(Int, Mode)] -> ProgramContext
 executeInstruction p@ProgramContext{..} opcode ps = programContext'
@@ -125,7 +125,7 @@ executeInstruction p@ProgramContext{..} opcode ps = programContext'
       Relative  -> i + base
       _         -> i
 
-    -- programContext' = trace "base= " $ traceShow base $ trace "pointer= " $ traceShow pointer $ trace "opcode= " $ traceShow opcode $ traceShow ps $ case opcode of
+    -- programContext' = trace (" pointer= "  ++ show pointer ++ " opcode= " ++ show opcode ++ " params=" ++ show ps ++ " inputs=" ++ show inputs) $ case opcode of
     programContext' = case opcode of
       Add      -> p'{memory = memory & ix (address $ ps !! 2) .~ value (ps !! 0) + value (ps !! 1)}
       Multiply -> p'{memory = memory & ix (address $ ps !! 2) .~ value (ps !! 0) * value (ps !! 1)}
