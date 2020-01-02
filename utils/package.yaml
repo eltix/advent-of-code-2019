@@ -1,4 +1,4 @@
-name:                preprocessing
+name:                utils
 version:             0.1.0.0
 github:              https://github.com/eltix/advent-of-code-2019
 license:             BSD3

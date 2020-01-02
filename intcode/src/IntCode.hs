@@ -15,7 +15,7 @@ module IntCode
 import BasicPrelude
 import Control.Lens
 
--- import Debug.Trace
+import Debug.Trace
 
 type Program = [Int]
 

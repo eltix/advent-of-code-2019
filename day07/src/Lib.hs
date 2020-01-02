@@ -12,7 +12,7 @@ module Lib
   , testPrograms
   ) where
 
-import Preprocessing (readProgram)
+import Utils (readProgram)
 import IntCode
 
 import BasicPrelude

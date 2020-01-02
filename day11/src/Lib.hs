@@ -12,7 +12,7 @@ module Lib
   ) where
 
 import IntCode
-import Preprocessing (readProgram)
+import Utils (readProgram)
 
 import BasicPrelude hiding (Left, Right, Down)
 import Data.Bifunctor (bimap)

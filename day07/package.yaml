@@ -19,7 +19,7 @@ description:         Please see the README on GitHub at <https://github.com/elti
 dependencies:
 # internal deps
 - intcode
-- preprocessing
+- utils
 # external deps
 - base >= 4.7 && < 5
 - basic-prelude

@@ -15,10 +15,8 @@ import BasicPrelude
 import qualified Prelude
 import qualified Data.Text as T
 
--- | Can't believe this isn't in the standard library :(
-chunksOf :: Int -> [a] -> [[a]]
-chunksOf _ [] = []
-chunksOf n l = (take n l) : (chunksOf n (drop n l))
+import Utils (chunksOf)
+
 
 decodeImage :: (Int, Int) -> [[Int]] -> [[Int]]
 decodeImage (width, height) layers = renderImage width pixels

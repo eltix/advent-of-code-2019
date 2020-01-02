@@ -11,7 +11,7 @@ module Lib
   , part2
   ) where
 
-import Preprocessing (readProgram)
+import Utils (readProgram)
 import IntCode
 
 import BasicPrelude

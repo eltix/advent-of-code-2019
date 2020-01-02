@@ -22,7 +22,7 @@ dependencies:
 - lens
 # internal deps
 - intcode
-- preprocessing
+- utils
 
 
 library:
