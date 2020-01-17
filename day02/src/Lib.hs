@@ -22,7 +22,7 @@ findNounAndVerb prog target = fmap fst . find ((== target) . snd) $ zip candidat
   where
     candidates = [(noun, verb) | noun <- [0..99] , verb <- [0..99]]
     programs   = updateProgram <$> candidates
-    outputs'   = head . program . runProgram . (\p -> freshProgramContext p 0) <$> programs
+    outputs'   = head . memory . runProgram . (\p -> freshProgramContext p Nothing 0) <$> programs
     updateProgram (noun, verb) = prog & ix 1 .~ noun & ix 2 .~ verb
 
 part1 :: IO ()
@@ -30,8 +30,8 @@ part1 = do
   p :: [Int] <- readProgram "day02/part1.csv"
   let
     p'  = p & ix 1 .~ 12 & ix 2 .~ 2
-    pCtx = runProgram $ freshProgramContext p' 0
-  putStrLn $ "final state at position 0 = " ++ tshow (head . program $ pCtx)
+    pCtx = runProgram $ freshProgramContext p' Nothing 0
+  putStrLn $ "final state at position 0 = " ++ tshow (head . memory $ pCtx)
 
 part2 :: IO ()
 part2 = do

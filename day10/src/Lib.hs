@@ -9,6 +9,7 @@
 module Lib
   ( part1
   , part2
+  , example
   ) where
 
 import BasicPrelude hiding (Vector)

@@ -22,7 +22,7 @@ part1 = do
   program <- readInput
   putStrLn "Please enter input:"
   input <- read <$> getLine
-  let programCtx = freshProgramContext program input
+  let programCtx = freshProgramContext program Nothing input
       result     = last . outputs . runProgram $ programCtx
   print result
 
@@ -31,7 +31,7 @@ part2 = do
   program <- readInput
   putStrLn "Please enter input:"
   input <- read <$> getLine
-  let programCtx = freshProgramContext program input
+  let programCtx = freshProgramContext program Nothing input
       result     = last . outputs . runProgram $ programCtx
   print result
 

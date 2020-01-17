@@ -37,7 +37,7 @@ runAmplifierSequence inputSignal (p0:programs) = foldl' amplify [p0'] programs
 runAmplifierSequenceOnce :: Program -> [Int] -> Int
 runAmplifierSequenceOnce program phases = last . outputs . last $ programs'
   where
-    programs  = freshProgramContext program <$> phases
+    programs  = freshProgramContext program Nothing <$> phases
     programs' = runAmplifierSequence 0 programs
 
 findHighestOutputSignal :: Program -> (Int, [Int])
@@ -54,7 +54,7 @@ feedBackLoop ::
   -> [Int] -- ^ the phase sequence
   -> Int   -- ^ the output signal of last loop
 feedBackLoop p inputSignal phaseSequence =
-  last $ go inputSignal (freshProgramContext p <$> phaseSequence)
+  last $ go inputSignal (freshProgramContext p Nothing <$> phaseSequence)
     where
       go input programs =
         let
