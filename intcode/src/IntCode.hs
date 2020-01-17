@@ -85,7 +85,14 @@ data ProgramContext =
   , inputs  :: [Int]
   , outputs :: [Int]
   , memory  :: [Int]
-  } deriving Show
+  }
+
+instance Show ProgramContext where
+  show ProgramContext{..} =
+    "{ pointer: " ++ show pointer ++ "\n" ++
+    ", state: " ++ show state ++ "\n" ++
+    ", outputs: " ++ show outputs ++ "\n" ++
+    "}"
 
 freshProgramContext :: Program -> Maybe Int -> Int -> ProgramContext
 freshProgramContext program mbMemSize input =
