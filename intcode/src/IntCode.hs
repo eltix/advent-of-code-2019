@@ -8,14 +8,12 @@
 
 module IntCode
   ( runProgram
-  , ProgramContext(..), Program, State(..)
-  , freshProgramContext, resetProgramContext
+  , Machine(..), Program, State(..)
+  , freshMachine, resetMachine
   ) where
 
 import BasicPrelude
 import Control.Lens
-
-import Debug.Trace
 
 type Program = [Int]
 
@@ -76,10 +74,9 @@ parseFirstValue value = (opCode, fromIntToMode <$> [m1, m2, m3])
 data State = Running | WaitingForInput | Halted
   deriving Show
 
-data ProgramContext =
-  ProgramContext
-  { program :: Program
-  , pointer :: Int
+data Machine =
+  Machine
+  { pointer :: Int
   , state   :: State
   , base    :: Int
   , inputs  :: [Int]
@@ -87,18 +84,17 @@ data ProgramContext =
   , memory  :: [Int]
   }
 
-instance Show ProgramContext where
-  show ProgramContext{..} =
+instance Show Machine where
+  show Machine{..} =
     "{ pointer: " ++ show pointer ++ "\n" ++
     ", state: " ++ show state ++ "\n" ++
     ", outputs: " ++ show outputs ++ "\n" ++
     "}"
 
-freshProgramContext :: Program -> Maybe Int -> Int -> ProgramContext
-freshProgramContext program mbMemSize input =
-  ProgramContext
-  { program = program
-  , pointer = 0
+freshMachine :: Program -> Maybe Int -> Int -> Machine
+freshMachine program mbMemSize input =
+  Machine
+  { pointer = 0
   , state   = Running
   , base    = 0
   , inputs  = [input]
@@ -106,22 +102,22 @@ freshProgramContext program mbMemSize input =
   , memory = case mbMemSize of; Nothing -> program; Just m -> take m $ program ++ repeat 0
   }
 
-resetProgramContext :: ProgramContext -> ProgramContext
-resetProgramContext p = p{state = Running, outputs = []}
+resetMachine :: Machine -> Machine
+resetMachine p = p{state = Running, outputs = []}
 
-runProgram, updateProgram :: ProgramContext -> ProgramContext
-runProgram p@ProgramContext{state} = case state of
+runProgram, updateProgram :: Machine -> Machine
+runProgram p@Machine{state} = case state of
   Running -> runProgram $ updateProgram p
   _       -> p
 
-updateProgram p@ProgramContext{..} = executeInstruction p opcode $ zip params modes
+updateProgram p@Machine{..} = executeInstruction p opcode $ zip params modes
   where
     (opcode, modes) = parseFirstValue $ memory !! pointer
     numParams       = numberOfParams opcode
     params          = [memory !! (pointer + i) | i <- [1..numParams]]
 
-executeInstruction :: ProgramContext -> OpCode -> [(Int, Mode)] -> ProgramContext
-executeInstruction p@ProgramContext{..} opcode ps = programContext'
+executeInstruction :: Machine -> OpCode -> [(Int, Mode)] -> Machine
+executeInstruction p@Machine{..} opcode ps = programContext'
   where
     p' = p{pointer = pointer + numberOfParams opcode + 1}
     value (param, mode) = case mode of

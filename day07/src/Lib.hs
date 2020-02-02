@@ -21,12 +21,12 @@ import Data.List (permutations)
 -- | Run sequentially k amplifiers
 runAmplifierSequence ::
   Int                 -- ^ the input signal
-  -> [ProgramContext] -- ^ the amplifiers programs
-  -> [ProgramContext] -- ^ the modified amplifiers programs
+  -> [Machine] -- ^ the amplifiers programs
+  -> [Machine] -- ^ the modified amplifiers programs
 runAmplifierSequence _ [] = mempty
 runAmplifierSequence inputSignal (p0:programs) = foldl' amplify [p0'] programs
   where
-    -- modify the first 'ProgramContext' by adding an extra input and running it
+    -- modify the first 'Machine' by adding an extra input and running it
     p0' = runProgram $ p0{inputs = inputs p0 ++ [inputSignal]}
     amplify [] _ = []
     amplify ps p =
@@ -37,7 +37,7 @@ runAmplifierSequence inputSignal (p0:programs) = foldl' amplify [p0'] programs
 runAmplifierSequenceOnce :: Program -> [Int] -> Int
 runAmplifierSequenceOnce program phases = last . outputs . last $ programs'
   where
-    programs  = freshProgramContext program Nothing <$> phases
+    programs  = freshMachine program Nothing <$> phases
     programs' = runAmplifierSequence 0 programs
 
 findHighestOutputSignal :: Program -> (Int, [Int])
@@ -54,12 +54,12 @@ feedBackLoop ::
   -> [Int] -- ^ the phase sequence
   -> Int   -- ^ the output signal of last loop
 feedBackLoop p inputSignal phaseSequence =
-  last $ go inputSignal (freshProgramContext p Nothing <$> phaseSequence)
+  last $ go inputSignal (freshMachine p Nothing <$> phaseSequence)
     where
       go input programs =
         let
           programs'  = runAmplifierSequence input programs
-          programs'' = resetProgramContext <$> programs'
+          programs'' = resetMachine <$> programs'
         in case outputs . last $ programs' of
           []       -> []
           output:_ -> (:) output $ go output programs''

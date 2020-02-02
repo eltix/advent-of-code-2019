@@ -61,7 +61,7 @@ tilesToScreen tileMap = putStrLn $ T.unlines screenRows <> scoreT
       Just (Tile _ (Score score)) -> tshow score
       _                           -> "?"
 
-play :: [Int] -> ProgramContext -> ProgramContext
+play :: [Int] -> Machine -> Machine
 play joystickInputs progCtx = progCtx''
   where
     progCtx'  = progCtx {inputs = joystickInputs, outputs = [], state = Running}
@@ -72,19 +72,19 @@ programOutputsToTiles outputs = HM.fromList [(pos, tile) | tile@(Tile pos _) <- 
   where
     tiles = fmap readTile . chunksOf 3 $ outputs
 
-loadGame :: IO ProgramContext
+loadGame :: IO Machine
 loadGame = do
   program <- readProgram "day13/program.csv"
   let
     program' = freeQuarters 2 program
-    progCtx  = freshProgramContext program' (Just 5000) 0
+    progCtx  = freshMachine program' (Just 5000) 0
   return progCtx
 
 part1 :: IO ()
 part1 = do
   program <- readProgram "day13/program.csv"
   let
-    progCtx   = freshProgramContext program (Just 10000) 0
+    progCtx   = freshMachine program (Just 10000) 0
     tileMap   = programOutputsToTiles . outputs . runProgram $ progCtx
     numBlocks = HM.size . HM.filter (\t -> case t of; Tile _ Block -> True; _ -> False) $ tileMap
   putStrLn $ "Number of Block tiles = " ++ tshow numBlocks
@@ -102,7 +102,7 @@ freeQuarters :: Int -> Program -> Program
 freeQuarters _ [] = error "Empty program"
 freeQuarters quarters (_:restOfProgram) = quarters: restOfProgram
 
-gameLoop :: (ProgramContext, HashMap Point Tile) -> IO (ProgramContext, HashMap Point Tile)
+gameLoop :: (Machine, HashMap Point Tile) -> IO (Machine, HashMap Point Tile)
 gameLoop (p, tiles) = do
   let
     joystickPos = last [x | (Tile (x, _) Paddle) <- HM.elems tiles]

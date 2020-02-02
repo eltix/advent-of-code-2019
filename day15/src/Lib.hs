@@ -54,7 +54,7 @@ data Status = Moving | HitWall | FoundOxygen deriving Show
 
 data DroidContext =
   DroidContext
-  { _programCtx  :: ProgramContext
+  { _programCtx  :: Machine
   , _environment :: HashMap Point Tile
   , _position    :: Point
   , _direction   :: Direction
@@ -95,7 +95,7 @@ execute :: WithContext Int
 execute = do
   DroidContext{_programCtx, _direction} <- get
   let
-    pCtx'  = (resetProgramContext _programCtx){inputs = [fromEnum _direction]}
+    pCtx'  = (resetMachine _programCtx){inputs = [fromEnum _direction]}
     pCtx'' = runProgram pCtx'
     output = last . outputs $ pCtx''
   modify (set programCtx pCtx'')
@@ -188,7 +188,7 @@ part1 :: IO ()
 part1 = do
   program <- readProgram "day15/program.csv"
   let
-    progCtx   = freshProgramContext program (Just 10000) 0
+    progCtx   = freshMachine program (Just 10000) 0
     droidCtx  = DroidContext progCtx mempty (0, 0) North Moving [(0, 0)]
   finalCtx <- autonomousDroid WallOnLeft True droidCtx
   let path = finalCtx ^. history
@@ -201,7 +201,7 @@ part2 :: IO ()
 part2 = do
   program <- readProgram "day15/program.csv"
   let
-    progCtx   = freshProgramContext program (Just 10000) 0
+    progCtx   = freshMachine program (Just 10000) 0
     droidCtx  = DroidContext progCtx mempty (0, 0) North Moving [(0, 0)]
   env1 <- view environment <$> autonomousDroid WallOnLeft False droidCtx
   env2 <- view environment <$> autonomousDroid WallOnRight False droidCtx

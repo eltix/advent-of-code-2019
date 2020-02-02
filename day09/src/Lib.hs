@@ -21,15 +21,15 @@ part1 :: IO ()
 part1 = do
   program <- readProgram "day09/program.csv"
   let
-    progCtxs  = (\p -> freshProgramContext p (Just 1000) 0) <$> examplePrograms
+    progCtxs  = (\p -> freshMachine p (Just 1000) 0) <$> examplePrograms
     progCtxs' = runProgram <$> progCtxs
   forM_ progCtxs' (putStrLn . tshow . outputs)
-  putStrLn . tshow . outputs . runProgram $ freshProgramContext program (Just 10000) 1
+  putStrLn . tshow . outputs . runProgram $ freshMachine program (Just 10000) 1
 
 part2 :: IO ()
 part2 = do
   program <- readProgram "day09/program.csv"
-  putStrLn . tshow . outputs . runProgram $ freshProgramContext program (Just 10000) 2
+  putStrLn . tshow . outputs . runProgram $ freshMachine program (Just 10000) 2
 
 examplePrograms :: [Program]
 examplePrograms = [p1, p2, p3]

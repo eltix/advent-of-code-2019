@@ -44,7 +44,7 @@ intToRotation i = error $ "Unknown rotation code: " ++ show i
 
 data RobotContext =
   RobotContext
-  { programCtx :: ProgramContext
+  { programCtx :: Machine
   , painted    :: HashMap Point Color
   , position   :: Point
   , facing     :: Facing
@@ -76,7 +76,7 @@ runRobotProgram hullColor r =
   in
   case state progCtx' of
     Halted -> r'
-    _      -> runRobotProgram hullColor r'{programCtx = resetProgramContext progCtx'}
+    _      -> runRobotProgram hullColor r'{programCtx = resetMachine progCtx'}
 
 runOneRobotStep :: Color -> RobotContext -> RobotContext
 runOneRobotStep hullColor RobotContext{..} =
@@ -98,7 +98,7 @@ paintHull ::
   -> HashMap Point Color
 paintHull hullColor program = painted $ robotCtx'
   where
-    progCtx       = freshProgramContext program (Just 10000) 0
+    progCtx       = freshMachine program (Just 10000) 0
     robotCtx      = RobotContext progCtx HM.empty (0,0) Up
     robotCtx'     = runRobotProgram hullColor robotCtx
 
