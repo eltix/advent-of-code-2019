@@ -5,6 +5,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Lib
@@ -19,9 +20,10 @@ import Utils (readProgram)
 import qualified System.IO as SIO
 import BasicPrelude hiding (Left, Right, Down)
 import qualified Data.HashMap.Strict as HM
+import qualified Data.Set as Set
 import qualified Data.Text as T
 import Control.Lens
-import Control.Monad.State
+import Control.Monad.State.Strict
 
 type Point = (Int, Int)
 
@@ -55,11 +57,11 @@ data Status = Moving | HitWall | FoundOxygen deriving Show
 data DroidContext =
   DroidContext
   { _programCtx  :: Machine
-  , _environment :: HashMap Point Tile
+  , _environment :: !(HashMap Point Tile)
   , _position    :: Point
   , _direction   :: Direction
   , _status      :: Status
-  , _history     :: [Point]
+  , _history     :: ![Point]
   } deriving Show
 
 makeLenses ''DroidContext
@@ -159,30 +161,42 @@ cutOutBranches (x:xs) =
   else
     x : (cutOutBranches xs)
 
-fillWithOxygen :: HashMap Point Tile -> Int -> Int
-fillWithOxygen area i =
-  if filledWithO area
-    then i
-    else fillWithOxygen (propagateOxygen area) (i+1)
+timeTofillWithOxygen :: HashMap Point Tile -> Int
+timeTofillWithOxygen area0 = go (area0, Set.singleton oxygenSource) 0
   where
+    oxygenSource :: Point
+    oxygenSource = head . HM.keys . HM.filter (==Oxygen) $ area0
+    go :: (HashMap Point Tile, Set Point) -> Int -> Int
+    go (area, oxyFront) i =
+      if filledWithO area
+        then i
+        else go (oneOxygenIteration (area, oxyFront)) (i+1)
+    -- stopping criterion: whole area is filled with Oxygen
+    filledWithO :: HashMap Point Tile -> Bool
     filledWithO = all id . fmap (\tile -> tile == Wall || tile == Oxygen)
-    propagateOxygen :: HashMap Point Tile -> HashMap Point Tile
-    propagateOxygen env = HM.union oxygen env
+    -- move the Oxygen front one step forward. Fore more efficiency, we keep
+    -- track of the front at each iteration so as to not have to recompute it
+    oneOxygenIteration :: (HashMap Point Tile, Set Point) -> (HashMap Point Tile, Set Point)
+    oneOxygenIteration (area, oxyFront) = (HM.union oxygenatedFront area, freeCellsAdjacentToFront)
       where
-        oxygen :: HashMap Point Tile
-        oxygen = HM.fromList . concat $
-          [ [(pos', Oxygen) | pos' <- adjacentCells pos]
-          | pos <- HM.keys $ HM.filterWithKey isOnOxygenFront env
+        -- Oxygen-free cells that are adjacent to the Oxygen front
+        freeCellsAdjacentToFront :: Set Point
+        freeCellsAdjacentToFront = Set.fromList . concat $
+          adjacentFreeCells <$> (Set.toList oxyFront)
+
+        oxygenatedFront :: HashMap Point Tile
+        oxygenatedFront = HM.fromList
+          [ (pos, Oxygen)
+          | pos <- Set.toList freeCellsAdjacentToFront
           ]
-        adjacentCells :: Point -> [Point]
-        adjacentCells pos = HM.keys $ HM.filterWithKey
-          (\pos' tile -> areAdjacent pos pos' && tile /= Wall) env
+
+        adjacentFreeCells :: Point -> [Point]
+        adjacentFreeCells pos = HM.keys $ HM.filterWithKey
+          (\pos' tile -> (not $ tile `elem` [Wall, Oxygen]) && areAdjacent pos pos') area
+
         areAdjacent :: Point -> Point -> Bool
         areAdjacent (x, y) (x', y') =
           (x' - x, y' - y) `elem` [(0, 1), (0, -1), (1, 0), (-1, 0)]
-        isOnOxygenFront :: Point -> Tile -> Bool
-        isOnOxygenFront pos tile =
-          tile == Oxygen && any ((/=Oxygen) . (env HM.!)) (adjacentCells pos)
 
 part1 :: IO ()
 part1 = do
@@ -205,9 +219,9 @@ part2 = do
     droidCtx  = DroidContext progCtx mempty (0, 0) North Moving [(0, 0)]
   env1 <- view environment <$> autonomousDroid WallOnLeft False droidCtx
   env2 <- view environment <$> autonomousDroid WallOnRight False droidCtx
-  let env = HM.union env1 env2
-  putStrLn . renderEnvironment $ env
-  let n = fillWithOxygen env 0
+  let area = HM.union env1 env2
+  putStrLn . renderEnvironment $ area
+  let n = timeTofillWithOxygen area
   putStrLn $ "Minutes to fill the area:" ++ tshow n
 
 renderEnvironment :: HashMap Point Tile -> Text

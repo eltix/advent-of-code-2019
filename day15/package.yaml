@@ -23,6 +23,7 @@ dependencies:
 # external deps
 - base >= 4.7 && < 5
 - basic-prelude
+- containers
 - lens
 - mtl
 - random
