@@ -1,4 +1,4 @@
-name:                day08
+name:                day16
 version:             0.1.0.0
 github:              https://github.com/eltix/advent-of-code-2019
 license:             BSD3
@@ -22,15 +22,18 @@ dependencies:
 # external deps
 - base >= 4.7 && < 5
 - basic-prelude
+- deepseq
 - lens
+- mtl
 - text
+- unordered-containers
 
 
 library:
   source-dirs: src
 
 executables:
-  day08-1:
+  day16-1:
     main:                Main.hs
     source-dirs:         app/Part1
     ghc-options:
@@ -38,9 +41,9 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - day08
+    - day16
 
-  day08-2:
+  day16-2:
     main:                Main.hs
     source-dirs:         app/Part2
     ghc-options:
@@ -48,4 +51,4 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - day08
+    - day16

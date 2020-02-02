@@ -12,11 +12,8 @@ module Lib
   ) where
 
 import BasicPrelude
-import qualified Prelude
-import qualified Data.Text as T
 
-import Utils (chunksOf)
-
+import Utils (chunksOf, loadIntList)
 
 decodeImage :: (Int, Int) -> [[Int]] -> [[Int]]
 decodeImage (width, height) layers = renderImage width pixels
@@ -40,7 +37,7 @@ printRow pixels = do
 
 part1 :: IO ()
 part1 = do
-  image <- loadInput
+  image <- loadIntList "day08/puzzle_input.csv"
   let
     (width, height) = (25, 6)
     layerSize = width*height
@@ -52,15 +49,10 @@ part1 = do
 
 part2 :: IO ()
 part2 = do
-  image <- loadInput
+  image <- loadIntList "day08/puzzle_input.csv"
   let
     (width, height) = (25, 6)
     layerSize = width*height
     layers = chunksOf layerSize image
     image' = decodeImage (width, height) layers
   forM_ image' printRow
-
-loadInput :: IO [Int]
-loadInput = do
-  s :: String <- init . T.unpack <$> readFile "day08/puzzle_input.csv"
-  return $ Prelude.read <$> [[c] | c <- s]
