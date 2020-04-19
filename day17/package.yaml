@@ -25,6 +25,7 @@ dependencies:
 - basic-prelude
 - containers
 - lens
+- mtl
 - text
 - unordered-containers
 
